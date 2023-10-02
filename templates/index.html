@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Addresses</title>
+</head>
+<body>
+    <h1>All Addresses</h1>
+    <ul>
+        {% for address in addresses %}
+            <li>{{ address.street_name }} {{ address.street_number }}, {{ address.city }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
