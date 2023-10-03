@@ -22,31 +22,28 @@ def retrieve_from_db(model, **filters):
     if not record:
         raise RecordNotFoundError(f"{model.__name__} not found with filters: {filters}")
     return record
-
+def get_or_create(model, defaults=None, **kwargs):
+    instance = model.query.filter_by(**kwargs).first()
+    if instance:
+        return instance
+    else:
+        params = dict(kwargs)
+        params.update(defaults or {})
+        instance = model(**params)
+        add_to_db(instance)
+        return instance
+    
 def get_or_create_address(street_name, street_number, city, postal_code):
+        
     address = retrieve_from_db(Address, street_name=street_name, street_number=street_number, city=city)
     if address:
         return address, False
     else:
-        district = retrieve_from_db(District, number=int(str(postal_code)[0]))
-        if not district:
-            district = District(number=int(str(postal_code)[0]))
-            add_to_db(district)
+        district = get_or_create(District, number=int(str(postal_code)[0]))
+        area = get_or_create(Area, defaults={'district': district}, number=int(str(postal_code)[:2]))
+        route = get_or_create(Route, defaults={'area': area}, number=int(str(postal_code)[:3]))
+        post_office = get_or_create(PostOffice, defaults={'route': route}, number=int(postal_code))
 
-        area = retrieve_from_db(Area, number=int(str(postal_code)[:2]))
-        if not area:
-            area = Area(number=int(str(postal_code)[:2]), district=district)
-            add_to_db(area)
-
-        route = retrieve_from_db(Route, number=int(str(postal_code)[:3]))
-        if not route:
-            route = Route(number=int(str(postal_code)[:3]), area=area)
-            add_to_db(route)
-
-        post_office = retrieve_from_db(PostOffice, number=int(postal_code))
-        if not post_office:
-            post_office = PostOffice(number=int(postal_code), route=route)
-            add_to_db(post_office)
 
         matching_address = api.fetch_address_from_geo_admin(street_name, street_number, postal_code, city)
         x, y, EGID = matching_address['attrs']['x'], matching_address['attrs']['y'], matching_address['attrs']['featureId']
