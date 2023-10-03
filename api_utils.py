@@ -1,11 +1,19 @@
 import requests
+from exceptions import APIError, APINotFoundError
+
 def fetch_from_api(url, params):
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        
         data = response.json()
         if 'results' in data and data['results']:
             return data['results'][0]
-    return None
+        else:
+            raise APINotFoundError(f"Expected data not found in API response for URL: {url}")
+    except requests.RequestException as e:
+        raise APIError(f"Error making API request: {str(e)}")
+
 
 def fetch_address_from_geo_admin(street_name, street_number, postal_code, city):
     search_url = "https://api3.geo.admin.ch//rest/services/api/SearchServer"

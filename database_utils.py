@@ -1,16 +1,27 @@
 from models import District, Area, Route, PostOffice, Address
 from database import db
 import api_utils as api
+from exceptions import DatabaseError, RecordNotFoundError
+
 
 def add_to_db(item):
-    db.session.add(item)
-    db.session.commit()
+    try:
+        db.session.add(item)
+        db.session.commit()
+    except Exception as e:
+        raise DatabaseError(f"Error adding to database: {str(e)}")
 
 def update_db():
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        raise DatabaseError(f"Error updating database: {str(e)}")
 
 def retrieve_from_db(model, **filters):
-    return model.query.filter_by(**filters).first()
+    record = model.query.filter_by(**filters).first()
+    if not record:
+        raise RecordNotFoundError(f"{model.__name__} not found with filters: {filters}")
+    return record
 
 def get_or_create_address(street_name, street_number, city, postal_code):
     address = retrieve_from_db(Address, street_name=street_name, street_number=street_number, city=city)
