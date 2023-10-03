@@ -6,6 +6,7 @@
     <title>Address Information</title>
 </head>
 <body>
+
     {% if form %}
     <form method="POST" action="{{ url_for('index') }}">
         {{ form.hidden_tag() }}
@@ -27,6 +28,7 @@
 
     {% if address %}
         <h2>Address Info:</h2>
+        <p>Address : {{address.street_name}} {{address.street_number}}</p>
         <p>EGID: {{ address.egid }}</p>
         <p>Sonnendach ID: {{ address.sonnendach_id }}</p>
         <p>BFS of Postal Code: {{ address.post_office.bfs }}</p>

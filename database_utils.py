@@ -1,9 +1,6 @@
 from models import District, Area, Route, PostOffice, Address
 from database import db
-import requests
 import api_utils as api
-
-
 
 def add_to_db(item):
     db.session.add(item)
@@ -58,12 +55,8 @@ def get_or_create_address(street_name, street_number, city, postal_code):
         add_to_db(new_address)
 
         if not post_office.bfs:
-            mapserver_url = f"https://api3.geo.admin.ch/rest/services/ech/MapServer/ch.bfs.gebaeude_wohnungs_register/{EGID}"
-            mapserver_response = requests.get(mapserver_url).json()
-            try:
-                BFS = mapserver_response['feature']['attributes']['ggdenr']
-            except:
-                return None, False
+            building_info = api.fetch_building_info_from_geo_admin(EGID)
+            BFS = building_info['feature']['attributes']['ggdenr']
             post_office.bfs = BFS
             update_db()
 
