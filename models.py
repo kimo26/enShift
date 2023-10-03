@@ -36,7 +36,7 @@ class Route(db.Model):
 class PostOffice(db.Model):
     __tablename__ = 'post_office'  # Setting the table name
     number = db.Column(db.Integer, primary_key=True, nullable=False)  # Post office number as primary key
-    name = db.Column(db.String(255), nullable=True)  # Post office name
+    bfs = db.Column(db.String(10), nullable=True)  # Post office name
     route_number = db.Column(db.Integer, db.ForeignKey('route.number'), nullable=False)  # Foreign key to Route model
     route = db.relationship('Route', back_populates='post_offices')  # Relationship to Route model
     addresses = db.relationship('Address', back_populates='post_office')  # Relationship to Address model
@@ -50,6 +50,8 @@ class Address(db.Model):
     street_name = db.Column(db.String(255), nullable=False)  # Street name
     street_number = db.Column(db.String(20), nullable=False)  # Street number
     city = db.Column(db.String(255), nullable=False)  # City name
+    egid = db.Column(db.String(255),nullable=True)
+    sonnendach_id = db.Column(db.String(255), nullable=True)
     post_office_number = db.Column(db.Integer, db.ForeignKey('post_office.number'), nullable=False)  # Foreign key to PostOffice model
     post_office = db.relationship('PostOffice', back_populates='addresses')  # Relationship to PostOffice model
 

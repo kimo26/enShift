@@ -3,14 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Addresses</title>
+    <title>Address Information</title>
 </head>
 <body>
-    <h1>All Addresses</h1>
-    <ul>
-        {% for address in addresses %}
-            <li>{{ address.street_name }} {{ address.street_number }}, {{ address.city }}</li>
-        {% endfor %}
-    </ul>
+    {% if form %}
+    <form method="POST" action="{{ url_for('index') }}">
+        {{ form.hidden_tag() }}
+        <label for="street_name">Street Name:</label><br>
+        {{ form.street_name(id='street_name') }}<br>
+        <label for="street_number">Street Number:</label><br>
+        {{ form.street_number(id='street_number') }}<br>
+        <label for="city">City:</label><br>
+        {{ form.city(id='city') }}<br>
+        <label for="postal_code">Postal Code:</label><br>
+        {{ form.postal_code(id='postal_code') }}<br><br>
+        {{ form.submit() }}
+    </form>
+    {% endif %}
+    
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+
+    {% if address %}
+        <h2>Address Info:</h2>
+        <p>EGID: {{ address.egid }}</p>
+        <p>Sonnendach ID: {{ address.sonnendach_id }}</p>
+        <p>BFS of Postal Code: {{ address.post_office.bfs }}</p>
+    {% endif %}
 </body>
 </html>
