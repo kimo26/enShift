@@ -1,7 +1,7 @@
 from models import District, Area, Route, PostOffice, Address
 from database import db
 import requests
-from api_utils import fetch_from_api
+import api_utils as api
 
 
 
@@ -40,36 +40,12 @@ def get_or_create_address(street_name, street_number, city, postal_code):
             post_office = PostOffice(number=int(postal_code), route=route)
             add_to_db(post_office)
 
-        searchText = f"{street_name} {street_number} {postal_code} {city}"
-        search_url = f"https://api3.geo.admin.ch//rest/services/api/SearchServer"
-        params = {
-            'lang': 'de',
-            'searchText': searchText,
-            'type': 'locations',
-            'sr': 2056
-        }
-
-        matching_address = fetch_from_api(search_url, params)
-
+        matching_address = api.fetch_address_from_geo_admin(street_name, street_number, postal_code, city)
         x, y, EGID = matching_address['attrs']['x'], matching_address['attrs']['y'], matching_address['attrs']['featureId']
 
-        identify_url = "https://api3.geo.admin.ch/rest/services/api/MapServer/identify"
-        params = {
-            'geometryType': 'esriGeometryPoint',
-            'returnGeometry': 'true',
-            'layers': 'all:ch.bfe.solarenergie-eignung-daecher',
-            'geometry': f"{y},{x}",
-            'tolerance': 0,
-            'order': 'distance',
-            'lang': 'de',
-            'sr': 2056
-        }
-
-        roof_info = fetch_from_api(identify_url, params)
-        if roof_info is None:
-            return None, False
-
+        roof_info = api.fetch_roof_info_from_geo_admin(x, y)
         sonnendach_id = roof_info['featureId']
+
 
         new_address = Address(
             street_name=street_name,
